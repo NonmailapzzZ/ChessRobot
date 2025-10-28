@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
-import coordinate
+from coordinate import inverse_matrix, tranformation_matrix
 from numpy import pi
 
-theta1, theta2 = coordinate.inverse_matrix(14,15)
+theta1, theta2 = inverse_matrix(14,15)
 
 
-a1 = coordinate.tranformation_matrix(theta1,0)
-a2 = coordinate.tranformation_matrix(theta2,1)
+a1 = tranformation_matrix(theta1,0)
+a2 = tranformation_matrix(theta2,1)
 H0_2 = a1 @ a2
 
 # print(H0_2)
