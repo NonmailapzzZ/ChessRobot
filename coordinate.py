@@ -10,6 +10,23 @@ dh_parameter = [{'alpha':0, 'r':26.5, 'd':0},
         ]
 
 
+def camera_plane2robot_plane(x_coordiante, y_coordinate) :
+    rotation_matrix = []
+    translation = []
+    cam_location = numpy.array([x_coordiante, y_coordinate], numpy.float16)
+    cam_location.transpose()
+
+    x = cam_location[0]
+    y = cam_location[1]
+
+    return x, y
+    
+    
+# Its still empty
+
+
+
+
 # Tranfomation matrix for each
 def tranformation_matrix(theta:int, index:int) -> numpy.array :
     
@@ -30,9 +47,11 @@ def tranformation_matrix(theta:int, index:int) -> numpy.array :
 
     return tranformation
 
-def inverse_matrix(x, y) :
-    x = numpy.float64(x)
-    y = numpy.float64(y)
+def inverse_matrix(x:numpy.float16, y:numpy.float16) :
+    
+    x, y =  camera_plane2robot_plane(x, y)
+    # x = numpy.float64(x)
+    # y = numpy.float64(y)
     # include a link length
     link1 = numpy.float64(dh_parameter[0]['r'])
     link2 = numpy.float64(dh_parameter[1]['r'])
@@ -49,3 +68,6 @@ def inverse_matrix(x, y) :
     theta_2 = pi-phi_3
     
     return theta_1, theta_2
+
+
+# print(inverse_matrix(5,10))
