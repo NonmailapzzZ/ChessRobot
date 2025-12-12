@@ -45,7 +45,8 @@ def tranformation_matrix(theta:int, index:int) -> numpy.array :
                                [0,0,0,1]
                         ])
 
-    return tranformation
+    # return (tranfomation matrix, x-coordination, y-coordination)
+    return (tranformation, tranformation[0,3], tranformation[1,3]) 
 
 def inverse_matrix(x:numpy.float16, y:numpy.float16) :
     
@@ -61,8 +62,13 @@ def inverse_matrix(x:numpy.float16, y:numpy.float16) :
     
     r = numpy.sqrt((x**2)+(y**2))
     phi_1 = numpy.arccos((link2**2 - link1**2 - r**2)/(-2*link1*r))
-    phi_2 = numpy.arctan(y/x)
-    theta_1 = phi_2-phi_1
+    phi_2_up = numpy.arctan(y/x)
+    phi_2_down= numpy.arctan(y/x)
+    
+    theta_1_up = phi_2_up - phi_1
+    theta_1_down = phi_2_down - phi_1
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
     phi_3 = numpy.arccos((r**2 - link1**2 - link2**2)/(-2*link1*link2))
     theta_2 = pi-phi_3

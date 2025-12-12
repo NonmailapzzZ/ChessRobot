@@ -1,7 +1,9 @@
 import time
 from adafruit_servokit import ServoKit
 
-kit = ServoKit(channels=8)
+kit = ServoKit(channels=8,
+               
+               )
 # setup 
 kit.servo[0].angle = 0
 kit.continuous_servo[1].throttle = 0
