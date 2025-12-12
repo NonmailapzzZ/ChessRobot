@@ -46,6 +46,7 @@ def tranformation_matrix(theta:int, index:int) -> numpy.array :
 def inverse_matrix(x:numpy.float16, y:numpy.float16) :
     #- - - const. - - -
     DANGER_MIN = -180
+    DANGER_MAX = 0
     #- - - - - - - - - -
     
     
@@ -68,7 +69,17 @@ def inverse_matrix(x:numpy.float16, y:numpy.float16) :
     theta_2_down = pi-phi_3
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    elbow_is_danger = ()
+    elbow_is_danger = (theta_1_down > DANGER_MIN) and (theta_1_down < DANGER_MAX) 
+    
+    if elbow_is_danger:
+        # recalculate on theta_1 and theta_2
+        phi_1_up = -phi_1 
+        theta_1_up = phi_2 - phi_1_up
+        theta_2_up = -(theta_2_down)
+
+        return theta_1_up, theta_2_up
+    else :
+        return theta_1_down, theta_2_down
     
     
 

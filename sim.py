@@ -1,6 +1,13 @@
 import matplotlib.pyplot as plt
-from coordinate_origin import inverse_matrix, tranformation_matrix
-from numpy import pi
+from Origin.coordinate_origin import inverse_matrix, tranformation_matrix
+from numpy import pi, deg2rad, linspace, ones_like
+import numpy as np
+
+theta_min = deg2rad(0)
+theta_max = deg2rad(180)
+theta = linspace(theta_min, theta_max, 300)
+r = ones_like(theta)*1
+
 
 theta1, theta2 = inverse_matrix(14,15)
 
@@ -19,5 +26,6 @@ y_co_link2 = [a1[2],H0_2[1,3]]
 plt.subplot()
 plt.plot(x_co_link1,y_co_link1, '-r', label='link1')
 plt.plot(x_co_link2,y_co_link2, '-b', label='link2')
+
 
 plt.show()
