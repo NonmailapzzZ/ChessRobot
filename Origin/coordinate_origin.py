@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 from numpy import sin,cos,pi
 
 # ---------- arm length ----------
@@ -13,7 +13,7 @@ dh_parameter = [{'alpha':0, 'r':26.5, 'd':0},
 def camera_plane2robot_plane(x_coordiante, y_coordinate) :
     rotation_matrix = []
     translation = []
-    cam_location = numpy.array([x_coordiante, y_coordinate], numpy.float16)
+    cam_location = np.array([x_coordiante, y_coordinate], np.float16)
     cam_location.transpose()
 
     x = cam_location[0]
@@ -23,18 +23,18 @@ def camera_plane2robot_plane(x_coordiante, y_coordinate) :
     
 
 # Tranfomation matrix for each
-def tranformation_matrix(theta:int, index:int) -> numpy.array :
+def tranformation_matrix(theta:int, index:int) -> np.array :
     
     if index >= len(dh_parameter):
         raise ValueError(f"Joint index {index} is out of range.")
     
     dh = dh_parameter[index]
-    cos_theta = numpy.cos(theta)
-    sin_theta = numpy.sin(theta)
-    cos_alpha = numpy.cos(dh['alpha'])
-    sin_alpha = numpy.sin(dh['alpha'])
+    cos_theta = np.cos(theta)
+    sin_theta = np.sin(theta)
+    cos_alpha = np.cos(dh['alpha'])
+    sin_alpha = np.sin(dh['alpha'])
     
-    tranformation= numpy.array([[cos_theta, -sin_theta*cos_alpha,  sin_theta*sin_alpha, dh['r']*cos_theta],
+    tranformation= np.array([[cos_theta, -sin_theta*cos_alpha,  sin_theta*sin_alpha, dh['r']*cos_theta],
                                [sin_theta,  cos_theta*cos_alpha, -cos_theta*sin_alpha, dh['r']*sin_theta],
                                [0,                    sin_alpha,            cos_alpha,           dh['d']],
                                [0,0,0,1]
@@ -43,7 +43,7 @@ def tranformation_matrix(theta:int, index:int) -> numpy.array :
     # return (tranfomation matrix, x-coordination, y-coordination)
     return (tranformation, tranformation[0,3], tranformation[1,3]) 
 
-def inverse_matrix(x:numpy.float16, y:numpy.float16) :
+def inverse_matrix(x:np.float16, y:np.float16) :
     #- - - const. - - -
     DANGER_MIN = -180
     DANGER_MAX = 0
@@ -54,18 +54,18 @@ def inverse_matrix(x:numpy.float16, y:numpy.float16) :
     # x = numpy.float64(x)
     # y = numpy.float64(y)
     # include a link length
-    link1 = numpy.float64(dh_parameter[0]['r'])
-    link2 = numpy.float64(dh_parameter[1]['r'])
+    link1 = np.float64(dh_parameter[0]['r'])
+    link2 = np.float64(dh_parameter[1]['r'])
     if (x**2+y**2) > (link1**2+link2**2) :
         raise ValueError("your coordinate destination is out of range")
     
     
-    r = numpy.sqrt((x**2)+(y**2))
-    phi_1 = numpy.arccos((link2**2 - link1**2 - r**2)/(-2*link1*r))
-    phi_2 = numpy.arctan(y/x)
+    r = np.sqrt((x**2)+(y**2))
+    phi_1 = np.arccos((link2**2 - link1**2 - r**2)/(-2*link1*r))
+    phi_2 = np.arctan(y/x)
    
     theta_1_down = phi_2 - phi_1
-    phi_3 = numpy.arccos((r**2 - link1**2 - link2**2)/(-2*link1*link2))
+    phi_3 = np.arccos((r**2 - link1**2 - link2**2)/(-2*link1*link2))
     theta_2_down = pi-phi_3
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -76,10 +76,11 @@ def inverse_matrix(x:numpy.float16, y:numpy.float16) :
         phi_1_up = -phi_1 
         theta_1_up = phi_2 - phi_1_up
         theta_2_up = -(theta_2_down)
-
-        return theta_1_up, theta_2_up
+        # for send theta_1 to 300deg servo need to invert because calculation on Counter-clockwise
+                                        # but for control use clockwise
+        return 180-np.rad2deg(theta_1_up) , np.rad2deg(theta_2_up)
     else :
-        return theta_1_down, theta_2_down
+        return 180-np.rad2deg(theta_1_down), np.rad2deg(theta_2_down)
     
     
 
