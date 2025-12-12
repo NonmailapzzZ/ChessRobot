@@ -49,6 +49,10 @@ def tranformation_matrix(theta:int, index:int) -> numpy.array :
     return (tranformation, tranformation[0,3], tranformation[1,3]) 
 
 def inverse_matrix(x:numpy.float16, y:numpy.float16) :
+    #- - - const. - - -
+    DANGER_MIN = -180
+    #- - - - - - - - - -
+    
     
     x, y =  camera_plane2robot_plane(x, y)
     # x = numpy.float64(x)
@@ -69,8 +73,7 @@ def inverse_matrix(x:numpy.float16, y:numpy.float16) :
     theta_2_down = pi-phi_3
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-    if 
-   
+    elbow_is_danger = ()
     
     
 

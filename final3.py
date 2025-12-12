@@ -1,5 +1,5 @@
-# final.py  (UI patched to call main.set_joints)
-# Paste/overwrite your existing final.py with this content.
+# final2.py
+# Patched UI: build UI first, then try to init main.init() safely (no crash if missing)
 
 import sys
 import math
@@ -17,7 +17,7 @@ from PyQt6.QtGui import QImage, QPixmap
 # use coordinate module for FK/IK
 import coordinate
 
-# import main motor driver (the file we just prepared)
+# import main motor driver (may or may not have init())
 import main
 
 # OpenCV + numpy (camera)
@@ -38,16 +38,6 @@ JOINT_LIMITS = {
 }
 L1 = 200.0
 L2 = 150.0
-
-# CameraThread and UI code omitted here for brevity in this message...
-# (Use the full UI body from your existing final.py)
-# I'll include the full UI below; the only functional changes are:
-# - call main.init() in __init__
-# - call main.set_joints(...) in _on_send()
-# - call main.cleanup() in closeEvent()
-
-# For completeness, below is the full UI (matching prior 'final_patched.py'),
-# with small edits to integrate main.set_joints.
 
 # ---------------- Camera thread ----------------
 class CameraThread(QThread):
@@ -138,18 +128,31 @@ class ScaraCameraApp(QMainWindow):
         self.joints = {k: 0.0 for k in JOINT_LIMITS.keys()}
         self.camera_thread = None
 
-        # initialize motor hardware (main)
-        try:
-            hw_ok = main.init()
-            if hw_ok:
-                self._log("[SYSTEM] Motor driver initialized (hardware).")
-            else:
-                self._log("[SYSTEM] Motor driver initialized (SIMULATION mode or hw not ready).")
-        except Exception as e:
-            self._log(f"[ERR] Motor init failed: {e}")
-
+        # Build UI first (so self.log exists) then try to init motor hardware safely
         self._build_ui()
         self._sync_widgets()
+
+        # Try to call main.init() if present, but don't crash if missing
+        try:
+            init_func = getattr(main, "init", None)
+            if callable(init_func):
+                ok = main.init()
+                if ok:
+                    self._log("[SYSTEM] Motor driver initialized (hardware).")
+                else:
+                    self._log("[SYSTEM] Motor driver initialized (SIMULATION mode or hw not ready).")
+            else:
+                print("[final2] main.init() not found — running in SIMULATION mode.")
+                try:
+                    self._log("[SYSTEM] Motor driver initialized (SIMULATION mode: main.init missing).")
+                except Exception:
+                    pass
+        except Exception as e:
+            print(f"[final2] Motor init failed: {e}")
+            try:
+                self._log(f"[ERR] Motor init failed: {e}")
+            except Exception:
+                pass
 
         # initial scan for cameras
         self._scan_cameras(max_devices=8)
@@ -454,8 +457,13 @@ class ScaraCameraApp(QMainWindow):
         self._log(f"[SEND] {cmd}")
         # --- HERE: call main.set_joints to actually drive hardware ---
         try:
-            main.set_joints(self.joints['theta1'], self.joints['theta2'], self.joints['d4'])
-            self._log("[SEND] dispatched to motor driver (main.set_joints).")
+            setj = getattr(main, "set_joints", None)
+            if callable(setj):
+                main.set_joints(self.joints['theta1'], self.joints['theta2'], self.joints['d4'])
+                self._log("[SEND] dispatched to motor driver (main.set_joints).")
+            else:
+                print("[final2] main.set_joints() not found; running in SIMULATION mode.")
+                self._log("[WARN] main.set_joints() not found; SIMULATION only.")
         except Exception as e:
             self._log(f"[ERR] sending to motor driver failed: {e}")
 
@@ -469,8 +477,12 @@ class ScaraCameraApp(QMainWindow):
         self._update_fk_display()
         # optionally also home hardware
         try:
-            main.set_joints(0.0, 0.0, 0.0)
-            self._log("[ACTION] Home sent to motor driver.")
+            setj = getattr(main, "set_joints", None)
+            if callable(setj):
+                main.set_joints(0.0, 0.0, 0.0)
+                self._log("[ACTION] Home sent to motor driver.")
+            else:
+                self._log("[WARN] main.set_joints() not found; Home only simulated.")
         except Exception as e:
             self._log(f"[ERR] home send failed: {e}")
 
@@ -478,15 +490,22 @@ class ScaraCameraApp(QMainWindow):
         self._log("[ACTION] EMERGENCY STOP (simulated)")
         # optional: immediately stop motors (if supported)
         try:
-            # simple stop: set throttles/angles to safe 0
-            main.set_joints(0.0, 0.0, 0.0)
-            self._log("[ACTION] Stop sent to motor driver.")
+            setj = getattr(main, "set_joints", None)
+            if callable(setj):
+                main.set_joints(0.0, 0.0, 0.0)
+                self._log("[ACTION] Stop sent to motor driver.")
+            else:
+                self._log("[WARN] main.set_joints() not found; Stop only simulated.")
         except Exception as e:
             self._log(f"[ERR] stop failed: {e}")
 
     def _log(self, text):
         ts = time.strftime("%H:%M:%S")
-        self.log.append(f"{ts}  {text}")
+        try:
+            self.log.append(f"{ts}  {text}")
+        except Exception:
+            # fallback to printing if log widget not ready
+            print(f"{ts} {text}")
 
     # ---------------- camera: scan / open / close ----------------
     def _scan_cameras(self, max_devices=8):
@@ -608,7 +627,11 @@ class ScaraCameraApp(QMainWindow):
             pass
         # cleanup motor driver
         try:
-            main.cleanup()
+            cleanup_func = getattr(main, "cleanup", None)
+            if callable(cleanup_func):
+                main.cleanup()
+            else:
+                print("[final2] main.cleanup() not found; skipping.")
         except Exception:
             pass
         event.accept()

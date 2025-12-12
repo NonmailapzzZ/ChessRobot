@@ -8,8 +8,9 @@ def move_slow(channel, target, step=1, delay=0.02):
 
     # ถ้ายังไม่มีค่า ให้ตั้งค่าเริ่มต้นเป็น 90
     if current is None:
-        current = 90
+        current = 0
         kit.servo[channel].angle = current
+        time.sleep(.5)
 
     if current < target:
         for angle in range(int(current), target + 1, step):
@@ -33,3 +34,9 @@ def rotate_degrees(channel, degrees, throttle): #
     kit.continuous_servo[channel].throttle = throttle
     time.sleep(duration)
     kit.continuous_servo[channel].throttle = 0
+    
+# for grippper maximum for grab
+# move_slow(0, 0)
+
+# for gripprt maximum for lifting gripper
+# move_slow(0, 70)
