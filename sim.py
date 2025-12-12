@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from coordinate import inverse_matrix, tranformation_matrix
+from coordinate_origin import inverse_matrix, tranformation_matrix
 from numpy import pi
 
 theta1, theta2 = inverse_matrix(14,15)
