@@ -4,8 +4,8 @@ from numpy import sin,cos,pi
 # ---------- arm length ----------
 # do it later when have data
 
-dh_parameter = [{'alpha':0, 'r':26.5, 'd':0},
-                {'alpha':pi, 'r':26, 'd':0},
+dh_parameter = [{'alpha':0, 'r':24.833, 'd':0},
+                {'alpha':pi, 'r':22.338, 'd':0},
                 {'alpha':0, 'r':0, 'd':0}                
         ]
 
@@ -56,7 +56,7 @@ def inverse_matrix(x:np.float16, y:np.float16) :
     # include a link length
     link1 = np.float64(dh_parameter[0]['r'])
     link2 = np.float64(dh_parameter[1]['r'])
-    if (x**2+y**2) > (link1**2+link2**2) :
+    if ((x**2+y**2) > abs(link1**2+link2**2)) or ((x**2+y**2) < abs(link1**2-link2**2)):
         raise ValueError("your coordinate destination is out of range")
     
     

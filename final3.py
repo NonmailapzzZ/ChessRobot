@@ -194,7 +194,10 @@ class ScaraCameraApp(QMainWindow):
             minv, maxv = JOINT_LIMITS[key]
 
             lbl = QLabel(label)
-            lbl.setStyleSheet("font-weight:700; padding-left:6px; font-size:14px; color:#c8efe6;")  # changed color
+            lbl.setStyleSheet("""font-weight:700;
+                              padding-left:6px;
+                              font-size:14px;
+                              color:#c8efe6; """)  # changed color
             joint_layout.addWidget(lbl, row, 0)
 
             # slightly slimmer slider visual
@@ -229,9 +232,16 @@ class ScaraCameraApp(QMainWindow):
         self.btn_send = QPushButton("Send"); self.btn_send.clicked.connect(self._on_send)
         self.btn_home = QPushButton("Home"); self.btn_home.clicked.connect(self._on_home)
         self.btn_stop = QPushButton("STOP"); self.btn_stop.clicked.connect(self._on_stop)
-        self.btn_stop.setStyleSheet("background:#d45b5b;color:white;font-weight:700; font-size:13px; padding:8px; border:2px solid #9e3a3a;")
+        self.btn_stop.setStyleSheet("""background:#d45b5b;
+                                       color:white;
+                                       font-weight:700;
+                                       font-size:13px;
+                                       padding:8px;
+                                       border:2px solid #9e3a3a;   """)
         for b in (self.btn_send, self.btn_home):
-            b.setStyleSheet("font-size:13px; padding:8px; border:2px solid rgba(43,109,255,0.12);")
+            b.setStyleSheet("""font-size:13px;
+                            padding:8px;
+                            border:2px solid rgba(43,109,255,0.12);  """)
         btns.addWidget(self.btn_send); btns.addWidget(self.btn_home); btns.addWidget(self.btn_stop)
         left_v.addLayout(btns)
 

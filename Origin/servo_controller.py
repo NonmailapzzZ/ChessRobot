@@ -34,22 +34,12 @@ def move_slow_link2(degrees, throttle, position):
     duration = abs(degrees-position) / rev_servo_speed
     
     #- - - - - - - - - -
-    if position < degrees:
-        kit.continuous_servo[channel].throttle = backward_servo_speed
-        time.sleep(duration)
-        kit.continuous_servo[channel].throttle = 0
-        time.sleep(.5)
-    else :
-        kit.continuous_servo[channel].throttle = forward_servo_speed
-        time.sleep(duration)
-        kit.continuous_servo[channel].throttle = 0
-        time.sleep(.5)
-        
-        
-        
-    kit.continuous_servo[channel].throttle = throttle
+    
+    kit.continuous_servo[channel].throttle = backward_servo_speed if degrees < 0 else forward_servo_speed
     time.sleep(duration)
     kit.continuous_servo[channel].throttle = 0
+    time.sleep(.5)
+    
     
 def move_slow_slider(target, step=1, delay=0.02):
     channel = 4

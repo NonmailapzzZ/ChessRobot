@@ -1,12 +1,22 @@
-import tkinter as tk
-from tkinter import ttk
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QMainWindow
+from PyQt6.QtCore import QSize, Qt 
+
+import sys
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        
+        # create button
+        self.setWindowTitle("Scara ChessRobot")
+        
+        
 
 
-# window
-window = tk.Tk()
-window.geometry("1280x480")
 
+app = QApplication(sys.argv)
 
+window = MainWindow()
+window.show()
 
-# run window "main"
-window.mainloop()
+app.exec()
