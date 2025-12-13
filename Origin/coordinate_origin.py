@@ -79,9 +79,9 @@ def inverse_matrix(x:np.float16, y:np.float16) :
         theta_2_up = -(theta_2_down)
         # for send theta_1 to 300deg servo need to invert because calculation on Counter-clockwise
                                         # but for control use clockwise
-        return 180-np.rad2deg(theta_1_up) , np.rad2deg(theta_2_up)
+        return np.rad2deg(theta_1_up) , np.rad2deg(theta_2_up)
     else :
-        return 180-np.rad2deg(theta_1_down), np.rad2deg(theta_2_down)
+        return np.rad2deg(theta_1_down), np.rad2deg(theta_2_down)
     
     
 

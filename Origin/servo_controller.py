@@ -17,11 +17,11 @@ def move_slow_link1(target, step=1, delay=0.02):
         time.sleep(.5)
 
     if current < target:
-        for angle in range(int(current), target + 1, step):
+        for angle in range(int(current), 180 - target + 1, step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
     else:
-        for angle in range(int(current), target - 1, -step):
+        for angle in range(int(current), 180 - target - 1, -step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
 
@@ -56,11 +56,11 @@ def move_slow_slider(target, step=1, delay=0.02):
         time.sleep(.5)
 
     if current < target:
-        for angle in range(int(current), target + 1, step):
+        for angle in range(int(current), 180 - target + 1, step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
     else:
-        for angle in range(int(current), target - 1, -step):
+        for angle in range(int(current), 180 - target - 1, -step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
 
