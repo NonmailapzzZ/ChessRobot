@@ -10,7 +10,7 @@ import numpy as np
 
 
 theta1, theta2 = inverse_matrix(17.5, 37.5)
-theta1 = deg2rad(180-theta1)
+theta1 = deg2rad(theta1)
 theta2 = deg2rad(theta2)
 print(np.rad2deg(theta1),"\n",np.rad2deg(theta2))
 
