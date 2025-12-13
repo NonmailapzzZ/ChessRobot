@@ -25,21 +25,26 @@ def move_slow_link1(target, step=1, delay=0.02):
             kit.servo[channel].angle = angle
             time.sleep(delay)
 
-def move_slow_link2(degrees, throttle, position): 
-    #- - - const. - - -
-    channel = 2
-    forward_servo_speed = 0.2
-    backward_servo_speed = -0.305
-    rev_servo_speed = 360/7.39
-    duration = abs(degrees-position) / rev_servo_speed
+class move_slow_link2 :
     
-    #- - - - - - - - - -
+    def __init__(self, kit, channel=2, deg_per_sec=360/7.39, forward_servo_speed = 0.2, backward_servo_speed = -0.305):
+        self.kit = kit
+        self.channel = channel
+        self.deg_per_sec = deg_per_sec
+        self.pos = 0
+        self.forward_speed = forward_servo_speed
+        self.backward_speed = backward_servo_speed
     
-    kit.continuous_servo[channel].throttle = backward_servo_speed if degrees < 0 else forward_servo_speed
-    time.sleep(duration)
-    kit.continuous_servo[channel].throttle = 0
-    time.sleep(.5)
-    
+    def move(self, target_deg):
+        delta = target_deg - self.pos
+        duration = abs(delta) / self.deg_per_sec
+
+        self.kit.continuous_servo[self.channel].throttle = self.backward_speed if delta > 0 else self.forward_speed
+        time.sleep(duration)
+        self.kit.continuous_servo[self.channel].throttle = 0
+        
+        # update pos
+        self.pos = target_deg
     
 def move_slow_slider(target, step=1, delay=0.02):
     channel = 4
