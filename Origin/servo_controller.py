@@ -8,7 +8,7 @@ kit = ServoKit(channels=8)
 position = 0
 
 def move_slow_link1(target, step=1, delay=0.02):
-    target = int(target)
+    target = 180 - target
     channel = 0
     current = kit.servo[channel].angle
 
@@ -18,11 +18,11 @@ def move_slow_link1(target, step=1, delay=0.02):
         time.sleep(.5)
 
     if current < target:
-        for angle in range(int(current), 180 - target + 1, step):
+        for angle in range(int(current), target + 1, step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
     else:
-        for angle in range(int(current), 180 - target - 1, -step):
+        for angle in range(int(current), target - 1, -step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
 
@@ -48,7 +48,6 @@ class move_slow_link2 :
         self.pos = target_deg
     
 def move_slow_slider(target, step=1, delay=0.02):
-    target = int(target)
     channel = 4
     current = kit.servo[channel].angle
 
@@ -58,11 +57,11 @@ def move_slow_slider(target, step=1, delay=0.02):
         time.sleep(.5)
 
     if current < target:
-        for angle in range(int(current), 180 - target + 1, step):
+        for angle in range(int(current), target + 1, step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
     else:
-        for angle in range(int(current), 180 - target - 1, -step):
+        for angle in range(int(current), target - 1, -step):
             kit.servo[channel].angle = angle
             time.sleep(delay)
 
@@ -80,4 +79,4 @@ def calibration_servo() :
 
 # test
 
-move_slow_link1(90)
+move_slow_link1(180)
