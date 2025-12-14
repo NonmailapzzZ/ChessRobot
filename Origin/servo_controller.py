@@ -37,7 +37,7 @@ class move_slow_link2 :
         self.backward_speed = backward_servo_speed
     
     def move(self, target_deg):
-        delta = target_deg - self.pos
+        delta = int(target_deg) - self.pos
         duration = abs(delta) / self.deg_per_sec
 
         self.kit.continuous_servo[self.channel].throttle = self.backward_speed if delta > 0 else self.forward_speed
@@ -76,3 +76,8 @@ def calibration_servo() :
 
 # for gripprt maximum for lifting gripper
 # move_slow(0, 70)
+
+
+# test
+
+move_slow_link1(90)
