@@ -506,10 +506,27 @@ class ScaraCameraApp(QMainWindow):
 
 
     def _on_home(self):
-        for k in self.joints:
+    # reset เฉพาะ joint ที่มี slider / spinbox
+        for k in ('theta1', 'theta2'):
             self.joints[k] = 0.0
+
+        # block signal กัน loop
+            self.spinboxes[k].blockSignals(True)
+            self.sliders[k].blockSignals(True)
+
             self.spinboxes[k].setValue(0.0)
-        self._log("[ACTION] Home (all zeros)")
+            self.sliders[k].setValue(0)
+
+            self.spinboxes[k].blockSignals(False)
+            self.sliders[k].blockSignals(False)
+
+    # reset d4 แยก
+        self.joints['d4_state'] = 'STOP'
+        self.val_z.setText("STOP")
+
+        self._update_fk_display()
+        self._log("[ACTION] Home (theta1, theta2 = 0, D4 = STOP)")
+
         
         
 
