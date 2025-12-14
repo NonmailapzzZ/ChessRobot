@@ -40,7 +40,7 @@ class move_slow_link2 :
         delta = int(target_deg) - self.pos
         duration = abs(delta) / self.deg_per_sec
 
-        self.kit.continuous_servo[self.channel].throttle = self.backward_speed if delta > 0 else self.forward_speed
+        self.kit.continuous_servo[self.channel].throttle = self.backward_speed if delta < 0 else self.forward_speed
         time.sleep(duration)
         self.kit.continuous_servo[self.channel].throttle = 0
         
