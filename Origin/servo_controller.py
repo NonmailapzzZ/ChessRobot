@@ -68,7 +68,7 @@ def move_slow_slider(target, step=1, delay=0.04):
             time.sleep(delay)
 
 def calibration_servo() :
-    kit.servo["link1"].angle = 0
+    kit.servo["link1"].angle = 180
     kit.servo["slider"].angle = 70
 
 
@@ -80,5 +80,4 @@ def calibration_servo() :
 
 
 # test
-
-move_slow_link1(180)
+# move_slow_link1(180)
