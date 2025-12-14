@@ -8,7 +8,7 @@ kit = ServoKit(channels=8)
 position = 0
 
 def move_slow_link1(target, step=1, delay=0.02):
-    target = 180 - target
+    target = 180 - int(target)
     channel = 0
     current = kit.servo[channel].angle
 
@@ -48,6 +48,7 @@ class move_slow_link2 :
         self.pos = target_deg
     
 def move_slow_slider(target, step=1, delay=0.02):
+    target = int(target)
     channel = 4
     current = kit.servo[channel].angle
 
