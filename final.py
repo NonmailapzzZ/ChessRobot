@@ -167,7 +167,7 @@ class ScaraCameraApp(QMainWindow):
     
     def _on_d4_up(self):
         try:
-            from servo_controller import move_slow_slider
+            from Origin.servo_controller import move_slow_slider
             move_slow_slider(target=70)
         except Exception as e:
             self._log(f"[D4] UP (SIMULATED) : {e}")
@@ -178,7 +178,7 @@ class ScaraCameraApp(QMainWindow):
 
     def _on_d4_down(self):
         try:
-            from servo_controller import move_slow_slider
+            from Origin.servo_controller import move_slow_slider
             move_slow_slider(target=0)
         except Exception as e:
             self._log(f"[D4] DOWN (SIMULATED) : {e}")
@@ -491,7 +491,7 @@ class ScaraCameraApp(QMainWindow):
         th2 = self.joints['theta2']
 
         try:
-            from servo_controller import move_slow_link1, move_slow_link2
+            from Origin.servo_controller import move_slow_link1, move_slow_link2
 
             move_slow_link1(th1)
             move_slow_link2.move(th2)
