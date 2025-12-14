@@ -492,9 +492,10 @@ class ScaraCameraApp(QMainWindow):
 
         try:
             from Origin.servo_controller import move_slow_link1, move_slow_link2
+            move_link2 = move_slow_link2()
 
             move_slow_link1(th1)
-            move_slow_link2.move(th2)
+            move_link2.move(th2)
 
             self._log(
                 f"[SEND] θ1={th1:.2f}°, θ2={th2:.2f}° → SERVO MOVED"
