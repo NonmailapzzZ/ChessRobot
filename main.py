@@ -7,7 +7,7 @@
 #   2) Camera panel moved visually to bottom-right (same widgets, same size)
 #   3) Optional vertical scrolling via QScrollArea
 # ------------------------------------------------------------
-import pyttsx3
+
 import sys
 import math
 import time
@@ -15,6 +15,9 @@ import traceback
 from Origin.coordinate_origin import inverse_matrix, tranformation_matrix
 import numpy as np
 from Origin.servo_controller import move_slow_link1, move_slow_link2
+
+
+
 
 
 def fk_from_coordinate(theta1_deg, theta2_deg):
@@ -74,7 +77,7 @@ class CameraThread(QThread):
         self.brightness = 0
         self.sharpness = 0.0
         self.fps_sleep_ms = 30
-        self.move_link2 = move_slow_link2()
+
 
     def set_brightness(self, v):
         try:
@@ -146,6 +149,8 @@ class ScaraCameraApp(QMainWindow):
         super().__init__()
         self.setWindowTitle("SCARA Control (θ1, θ2, d4) + Camera")
         self.resize(1100, 700)
+        self.move_link2 = move_slow_link2()
+        
 
         self.joints = {
             'theta1': 0.0,
@@ -154,10 +159,6 @@ class ScaraCameraApp(QMainWindow):
 }
 
         self.camera_thread = None
-        
-        self.tts = pyttsx3.init()
-        self.tts.setProperty('rate', 170)    # ความเร็วพูด
-        self.tts.setProperty('volume', 1.0)  # ความดัง
 
         self._build_ui()
         self._sync_widgets()
@@ -435,18 +436,16 @@ class ScaraCameraApp(QMainWindow):
         def on_change(val):
             minv, maxv = JOINT_LIMITS[key]
 
-        # 1) ค่าจริงให้มาจาก spinbox เท่านั้น
-            self.joints[key] = round(val, 2)
-
-        # 2) slider เป็นแค่ตัวแสดงตำแหน่ง
-            self.sliders[key].blockSignals(True)
-            pos = round((val - minv) / (maxv - minv) * 1000)
-            self.sliders[key].setValue(pos)
-            self.sliders[key].blockSignals(False)
-
-        # 3) update FK
-            self._update_fk_display()
-
+            if key == 'd4':
+                value_mm = val    # cm → mm
+                pos = int((value_mm - minv) / (maxv - minv)* 1000)
+                self.sliders[key].setValue(pos)
+                self.joints[key] = value_mm
+            else:
+                pos = int((val - minv) / (maxv - minv)* 1000)
+                self.sliders[key].setValue(pos)
+                self.joints[key] = val
+            self._update_fk_display()  
         return on_change
 
     
@@ -492,12 +491,9 @@ class ScaraCameraApp(QMainWindow):
 
     # ---------------- existing actions (UNCHANGED) ----------------
     def _on_send(self):
-        
-        self.tts.say("ย๊ากกกกกก")
-        self.tts.runAndWait()
         th1 = self.joints['theta1']
         th2 = self.joints['theta2']
-
+        
         try:
 
             move_slow_link1(th1)
