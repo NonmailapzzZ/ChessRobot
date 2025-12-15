@@ -15,6 +15,9 @@ import traceback
 from Origin.coordinate_origin import inverse_matrix, tranformation_matrix
 import numpy as np
 
+from Origin.servo_controller import move_slow_link1, move_slow_link2
+move_link2 = move_slow_link2()
+
 
 
 
@@ -492,7 +495,7 @@ class ScaraCameraApp(QMainWindow):
 
 
     # ---------------- existing actions (UNCHANGED) ----------------
-    def _on_send(self):
+    def _on_send(self,move_link2 = move_link2):
         
         self.tts.say("ย๊ากกกกกก")
         self.tts.runAndWait()
