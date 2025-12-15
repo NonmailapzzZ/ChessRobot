@@ -62,7 +62,7 @@ def inverse_matrix(x:np.float16, y:np.float16) :
     
     
     r = np.sqrt((x**2)+(y**2))
-    phi_1 = np.arccos((link2**2 - link1**2 - r**2)/(-2*link1*r))
+    phi_1 = np.arccos((link2**2 - link1**2 - r**2)/(-2*link1*r)) # np.arctan(l2*np.sin(phi_3),link1 + link2 * np.cos(phi_3))
     phi_2 = np.arctan(y/x)
    
     theta_1_down = phi_2 - phi_1

@@ -2,7 +2,7 @@ import time
 from adafruit_servokit import ServoKit
 from numpy import abs
 
-kit = ServoKit(channels=8)
+kit = ServoKit(channels=16)
 
 
 position = 0
