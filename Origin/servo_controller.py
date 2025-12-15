@@ -29,7 +29,7 @@ def move_slow_link1(target, step=1, delay=0.04):
 
 class move_slow_link2 :
     
-    def __init__(self, kit=kit, channel=2, deg_per_sec=360/7.39, forward_servo_speed = 0.2, backward_servo_speed = -0.305):
+    def __init__(self, kit=kit, channel=2, deg_per_sec=360/7.39, forward_servo_speed = 0.2, backward_servo_speed = -0.31):
         self.kit = kit
         self.channel = channel
         self.deg_per_sec = deg_per_sec
