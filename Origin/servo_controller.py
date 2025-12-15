@@ -1,30 +1,59 @@
+# = = = = = = = Const. = = = = = = = =
 import time
 from adafruit_servokit import ServoKit
 from numpy import abs
+import time
+from adafruit_pca9685 import PCA9685
+import busio
+import board
 
 kit = ServoKit(channels=16)
-
+# I2C
+i2c = busio.I2C(board.SCL, board.SDA)
+pca = PCA9685(i2c) 
+pca.frequency = 50
+SERVO_CH = 0
 
 position = 0
 
+PWM_MIN_US = 500      
+PWM_MAX_US = 2500     
+ANGLE_MAX = 300       
+# = = = = = = = = = = = = = = = = = = = = 
+ 
+ 
+# = = = = = = = Calculate. = = = = = = = =
+ 
+def duty_to_us(duty):
+    return duty * 20000 / 65535
+
+def us_to_duty(us):
+    return int(us * 65535 / 20000)
+
+def angle_to_duty(angle):
+    angle = max(0, min(ANGLE_MAX, angle))
+    us = PWM_MIN_US + (angle / ANGLE_MAX) * (PWM_MAX_US - PWM_MIN_US)
+    return us_to_duty(us)
+
+def duty_to_angle(duty):
+    us = duty_to_us(duty)
+    angle = (us - PWM_MIN_US) * ANGLE_MAX / (PWM_MAX_US - PWM_MIN_US)
+    return max(0, min(ANGLE_MAX, angle))
+# = = = = = = = = = = = = = = = = = = = = 
+
 def move_slow_link1(target, step=1, delay=0.04):
-    eror = 7
-    target = 180 - int(target) + eror
-    channel = 0
-    current = kit.servo[channel].angle
 
-    if current is None:
-        current = 180 + eror
-        kit.servo[channel].angle = current
-        time.sleep(.5)
-
+    SERVO_CH = 0
+    current = pca.channels[SERVO_CH].duty_cycle
+    current = duty_to_angle(current)
+    
     if current < target:
         for angle in range(int(current), target + 1, step):
-            kit.servo[channel].angle = angle
+            pca.channels[SERVO_CH].duty_cycle = angle_to_duty(angle)
             time.sleep(delay)
     else:
         for angle in range(int(current), target - 1, -step):
-            kit.servo[channel].angle = angle
+            pca.channels[SERVO_CH].duty_cycle = angle_to_duty(angle)
             time.sleep(delay)
 
 class move_slow_link2 :
