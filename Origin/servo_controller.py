@@ -42,7 +42,7 @@ def duty_to_angle(duty):
 # = = = = = = = = = = = = = = = = = = = = 
 
 def move_slow_link1(target, step=1, delay=0.04):
-    target = 180 - target + 89
+    target = int(180 - target + 89)
     SERVO_CH = 0
     current = pca.channels[SERVO_CH].duty_cycle
     current = duty_to_angle(current)
