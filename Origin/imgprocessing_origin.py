@@ -1,46 +1,35 @@
 import cv2
-import glob
 import numpy as np
-import os
+from ultralytics import YOLO
 
-def calibration() :
-    chessboardsize = (9,6)
-    framesize = (1280,720)
+model = YOLO("best.pt")
 
-    # termination criteria
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-        
-    # prepare object point 
-    object = np.zeros((chessboardsize[0] * chessboardsize[1], 3), np.float32)
-    object[:,:2] = np.mgrid[0:chessboardsize[0], 0:chessboardsize[1]].T.reshape(-1,2)
+# ลำดับ: ซ้ายบน, ขวาบน, ขวาล่าง, ซ้ายล่าง
+BOARD_CORNERS = np.float32([
+    [120, 80],
+    [520, 90],
+    [530, 480],
+    [110, 470]
+])
 
-    # Arrays to store object and image points from all the image
-    objectPoint = [] # 3d real world space
-    imgPoint = [] # 2d point in image plane
-        
-    image = r'C:\Users\ASUS\Desktop\ChessRobot\calibration'
-    for image in os.listdir(image) :
-        print(image)
-        img = cv2.imread(os.path.join(r'C:\Users\ASUS\Desktop\ChessRobot\calibration',image))
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        # find chess board corner
-        ret, corners = cv2.findChessboardCorners(gray, chessboardsize, None)
+BOARD_SIZE = 400  # pixel (กระดานจะถูก warp เป็น 400x400)
 
-        # If found, add object point, image point (after refining item)
-        if ret == True :
-            objectPoint.append(object)
-            corners2 = cv2.cornerSubPix(gray, corners, (11,11), (-1,-1), criteria)
-            imgPoint.append(corners)
-
-            # Draw and display the corners 
-            cv2.drawChessboardCorners(img, chessboardsize, corners2, ret)
-            cv2.imshow('img', img)
-            cv2.waitKey(1000)
-                
-    cv2.destroyAllWindows()
+def warp_board(frame):
+    dst = np.float32([
+        [0, 0],
+        [BOARD_SIZE, 0],
+        [BOARD_SIZE, BOARD_SIZE],
+        [0, BOARD_SIZE],
+    ])
+    M = cv2.getPerspectiveTransform(BOARD_CORNERS, dst)
+    warped = cv2.warpPerspective(frame, M, (BOARD_SIZE, BOARD_SIZE))
     
-    ret, cameraMatrix, dist, rvecs, tvecs = cv2.calibrateCamera(objectPoint, imgPoint, framesize, None, None)
+    return warped
 
-    img = cv2.imread(r"C:\Users\ASUS\Desktop\ChessRobot\calibration\img_007.jpg")
+def detect_pieces(board_img):
+    result = model(board_img, conf=.5, verbose=False)
+    detection = []
 
-calibration()
+    for r in result:
+        for box in r.boxes:
+            cls = int(box.cls[])
