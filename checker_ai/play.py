@@ -1,23 +1,33 @@
 import torch
-from checkers_env import CheckersEnv
-from dqn_model import DQN
+from env import CheckersEnv
+from dqn_agent import DQNAgent
 
 env = CheckersEnv()
-model = DQN()
-model.load_state_dict(torch.load("model.pth"))
-model.eval()
-
-state = env.reset()
-
-move = max(
-    env.valid_moves(),
-    key=lambda m: model(
-        torch.tensor(state, dtype=torch.float32).unsqueeze(0)
-    )[0][m[1][0]*8 + m[1][1]]
+agent = DQNAgent(
+    state_size=env.board_size * env.board_size,
+    action_size=env.action_size
 )
 
-from_cell = move[0][0]*8 + move[0][1]
-to_cell = move[1][0]*8 + move[1][1]
+# ❗ เปลี่ยน model → q_network (หรือชื่อที่คุณใช้จริง)
+agent.policy_net.load_state_dict(
+    torch.load("checkers_ai.pth", map_location="cpu")
+)
+agent.policy_net.eval()
 
-# เรียกแขนกล
-move_robot(from_cell, to_cell)
+agent.epsilon = 0.0  # ไม่สุ่ม
+
+state = env.get_state_tensor()
+done = False
+
+while not done:
+    valid_actions = env.valid_actions()
+    if not valid_actions:
+        break
+
+    action = agent.act(state, valid_actions)
+    _, _, done, _ = env.step(action)
+    state = env.get_state_tensor()
+
+    for row in env.board:
+        print(row)
+    print("-" * 20)
