@@ -14,7 +14,7 @@ import time
 import traceback
 from Origin.coordinate_origin import inverse_matrix, tranformation_matrix
 import numpy as np
-from Origin.servo_controller import move_slow_link1, move_slow_link2
+from Origin.servo_controller_gpio import move_slow_link1, move_slow_link2
 
 
 
@@ -171,7 +171,7 @@ class ScaraCameraApp(QMainWindow):
     
     def _on_d4_up(self):
         try:
-            from Origin.servo_controller import move_slow_slider
+            from Origin.servo_controller_gpio_gpio import move_slow_slider
             move_slow_slider(target=70)
         except Exception as e:
             self._log(f"[D4] UP (SIMULATED) : {e}")
@@ -182,7 +182,7 @@ class ScaraCameraApp(QMainWindow):
 
     def _on_d4_down(self):
         try:
-            from Origin.servo_controller import move_slow_slider
+            from Origin.servo_controller_gpio_gpio import move_slow_slider
             move_slow_slider(target=0)
         except Exception as e:
             self._log(f"[D4] DOWN (SIMULATED) : {e}")
