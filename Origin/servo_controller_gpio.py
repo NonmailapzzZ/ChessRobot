@@ -1,15 +1,10 @@
 # = = = = = = = Const. = = = = = = = =
-# GPIOZero version (แทน I2C / PCA9685 / lgpio)
+# GPIOZero ONLY version (ไม่ใช้ pigpio / I2C / PCA9685)
 # คงชื่อฟังก์ชันและ class เดิมทั้งหมด
 
 import time
 from numpy import abs
 from gpiozero import Servo, AngularServo
-from gpiozero.pins.pigpio import PiGPIOFactory
-
-# ================= GPIOZero init =================
-# ใช้ pigpio backend เพื่อ PWM ที่นิ่งกว่า
-factory = PiGPIOFactory()
 
 # ================= GPIO mapping =================
 # map channel เดิม → GPIO pin
@@ -31,7 +26,6 @@ link1 = AngularServo(
     max_angle=ANGLE_MAX,
     min_pulse_width=PWM_MIN_US / 1_000_000,
     max_pulse_width=PWM_MAX_US / 1_000_000,
-    pin_factory=factory,
 )
 
 # slider : 180° servo
@@ -41,7 +35,6 @@ slider = AngularServo(
     max_angle=180,
     min_pulse_width=0.5 / 1000,
     max_pulse_width=2.5 / 1000,
-    pin_factory=factory,
 )
 
 # continuous servo
@@ -49,7 +42,6 @@ link2 = Servo(
     LINK2_PIN,
     min_pulse_width=1.3 / 1000,
     max_pulse_width=1.7 / 1000,
-    pin_factory=factory,
 )
 
 # = = = = = = = Calculate. = = = = = = = =
