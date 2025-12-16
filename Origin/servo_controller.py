@@ -1,60 +1,46 @@
 # = = = = = = = Const. = = = = = = = =
 import time
-from adafruit_servokit import ServoKit
 from numpy import abs
-import time
-from adafruit_pca9685 import PCA9685
-import busio
-import board
+import RPi.GPIO as GPIO
 
-kit = ServoKit(channels=16)
-# I2C
-i2c = busio.I2C(board.SCL, board.SDA)
-pca = PCA9685(i2c) 
-pca.frequency = 50
-SERVO_CH = 0
+# ============ GPIO SETUP ==============
+GPIO.setmode(GPIO.BCM)
+servo_pins = [12, 13, 18, 19]
+GPIO.setup(servo_pins, GPIO.OUT)
 
-position = 0
-
-PWM_MIN_US = 500      
-PWM_MAX_US = 2500     
-ANGLE_MAX = 300       
-# = = = = = = = = = = = = = = = = = = = = 
+# ============ PWM 50 HZ ================
+servos = [GPIO.PWM(pin, 50) for pin in servo_pins]
  
  
+# ====== CONFIG SERVO ======
+SERVO_MIN_ANGLE = 0
+SERVO_MAX_ANGLE = 300
+SERVO_MIN_DUTY  = 2.5
+SERVO_MAX_DUTY  = 12.5
+
+
 # = = = = = = = Calculate. = = = = = = = =
- 
-def duty_to_us(duty):
-    return duty * 20000 / 65535
-
-def us_to_duty(us):
-    return int(us * 65535 / 20000)
-
 def angle_to_duty(angle):
-    angle = max(0, min(ANGLE_MAX, angle))
-    us = PWM_MIN_US + (angle / ANGLE_MAX) * (PWM_MAX_US - PWM_MIN_US)
-    return us_to_duty(us)
+    angle = max(SERVO_MIN_ANGLE, min(SERVO_MAX_ANGLE, angle))
+    duty = SERVO_MIN_DUTY + (angle / SERVO_MAX_ANGLE) * (SERVO_MAX_DUTY - SERVO_MIN_DUTY)
+    return duty
 
-def duty_to_angle(duty):
-    us = duty_to_us(duty)
-    angle = (us - PWM_MIN_US) * ANGLE_MAX / (PWM_MAX_US - PWM_MIN_US)
-    return max(0, min(ANGLE_MAX, angle))
-# = = = = = = = = = = = = = = = = = = = = 
-
-def move_slow_link1(target, step=1, delay=0.04):
-    target = int(180 - target + 89)
-    SERVO_CH = 0
-    current = pca.channels[SERVO_CH].duty_cycle
-    current = duty_to_angle(current)
+# = = = = = = = SERVO ROTATE = = = = = = = = = 
+def move_slow_link1(target, step=1, delay=0.02):
+    target = int(180 - target + 85)
+    servo_index = 0
     
-    if current < target:
-        for angle in range(int(current), target + 5, step):
-            pca.channels[SERVO_CH].duty_cycle = angle_to_duty(angle) - 44
-            time.sleep(delay)
-    else:
-        for angle in range(int(current), target - 5, -step):
-            pca.channels[SERVO_CH].duty_cycle = angle_to_duty(angle) - 88
-            time.sleep(delay)
+    if 'current_angle' not in move_slow_link1.__dict__:
+        move_slow_link1.current_angle = [150]
+        
+    current = move_slow_link1.current_angle[0]
+    step = 1 if current < target else -1
+    
+    for angle in range(int(current), target + step, step):
+        servos[servo_index].ChangeDutyCycle(angle_to_duty(angle))
+        time.sleep(delay)
+    
+    move_slow_link1.current_angle[servo_index] = target
 
 class move_slow_link2 :
     def __init__(self, kit=kit, channel=2, deg_per_sec=360/7.39, forward_servo_speed = 0.2, backward_servo_speed = -0.31):
@@ -78,15 +64,7 @@ def move_slow_slider(target, step=1, delay=0.04):
     target = int(target)
     channel = 4
     current = kit.servo[channel].angle
-    if current < target:
-        for angle in range(int(current), target + 1, step):
-            kit.servo[channel].angle = angle
-            time.sleep(delay)
-    else:
-        for angle in range(int(current), target - 1, -step):
-            kit.servo[channel].angle = angle
-            time.sleep(delay)
-
+  
 def calibration_servo() :
     kit.servo["link1"].angle = 180
     kit.servo["slider"].angle = 70
