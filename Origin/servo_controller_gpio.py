@@ -68,9 +68,9 @@ def duty_to_angle(duty):
 # = = = = = = = Functions (ชื่อเดิม) = = = = = = =
 
 def move_slow_link1(target, step=1, delay=0.04):
-    target = int(180 - target + 89)
+    target = int(target)
 
-    current = link1.angle or 0
+    current = link1.angle if link1.angle is None else 0
 
     if current < target:
         for angle in range(int(current), target + 5, step):
@@ -83,7 +83,7 @@ def move_slow_link1(target, step=1, delay=0.04):
 
 
 class move_slow_link2:
-    def __init__(self, kit=None, channel=2, deg_per_sec=360/7.39,
+    def __init__(self, deg_per_sec=360/7.39,
                  forward_servo_speed=0.2, backward_servo_speed=-0.31):
         self.deg_per_sec = deg_per_sec
         self.pos = 0
