@@ -4,7 +4,7 @@ from checker_ai.dqn_agent import DQNAgent
 from checker_ai.utils import action_to_move
 from checker_ai.config import BOARD_SIZE, AI, OPP
 
-def predict_move(board_list, model_path="dqn_model.pth"):
+def predict_move(board_list, model_path="checker_ai.pth"):
     """
     board_list: 2D list จากกล้อง
     return: {"from": (r,c), "to": (r,c)}

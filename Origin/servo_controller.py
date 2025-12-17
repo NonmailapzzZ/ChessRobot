@@ -62,27 +62,65 @@ def move_slow_link1(target, step = 1, delay=0.04):
     move_slow_link1.current_angle[servo_index] = target
 
 
+class move_slow_link2:
+    def __init__(self, gpio_pin=servo_pins[2], deg_per_sec=360/7.39, duty_stop=7.5, forward_offset=2.0, backward_offset=2.2):
+        """
+        gpio_pin        : GPIO pin (BCM)
+        deg_per_sec     : ความเร็วเชิงองศา (deg/s)
+        duty_stop       : duty ที่ servo หยุดนิ่ง
+        forward_offset  : ความเร็วไปข้างหน้า
+        backward_offset : ความเร็วถอยหลัง
+        """
+        self.pin = gpio_pin
+        self.deg_per_sec = deg_per_sec
+        self.pos = 0
 
-# ~ class move_slow_link2 :
-    # ~ def __init__(self, kit=kit, channel=2, deg_per_sec=360/7.39, forward_servo_speed = 0.2, backward_servo_speed = -0.31):
-        # ~ self.kit = kit
-        # ~ self.channel = channel
-        # ~ self.deg_per_sec = deg_per_sec
-        # ~ self.pos = 0
-        # ~ self.forward_speed = forward_servo_speed
-        # ~ self.backward_speed = backward_servo_speed
-    
-    # ~ def move(self, target_deg):
-        # ~ delta = int(target_deg) - self.pos
-        # ~ duration = abs(delta) / self.deg_per_sec
-        # ~ self.kit.continuous_servo[self.channel].throttle = self.backward_speed if delta < 0 else self.forward_speed
-        # ~ time.sleep(duration)
-        # ~ self.kit.continuous_servo[self.channel].throttle = 0
-        # ~ # update pos
-        # ~ self.pos = target_deg
+        self.duty_stop = duty_stop
+        self.duty_forward = duty_stop + forward_offset
+        self.duty_backward = duty_stop - backward_offset
+
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin, GPIO.OUT)
+
+        self.pwm = GPIO.PWM(self.pin, 50)
+        self.pwm.start(self.duty_stop)
+        time.sleep(0.5)
+
+    # ---------- low-level ----------
+    def _set_forward(self):
+        self.pwm.ChangeDutyCycle(self.duty_forward)
+
+    def _set_backward(self):
+        self.pwm.ChangeDutyCycle(self.duty_backward)
+
+    def _stop(self):
+        self.pwm.ChangeDutyCycle(self.duty_stop)
+
+    # ---------- main API ----------
+    def move(self, target_deg):
+        delta = int(target_deg) - self.pos
+        duration = abs(delta) / self.deg_per_sec
+
+        if delta == 0:
+            return
+
+        if delta > 0:
+            self._set_forward()
+        else:
+            self._set_backward()
+
+        time.sleep(duration)
+        self._stop()
+
+        # update position
+        self.pos = target_deg
+
+    def cleanup(self):
+        self._stop()
+        self.pwm.stop()
+        GPIO.cleanup(self.pin)
+
   
-  
-    
 def move_slow_slider(status, step = 1, delay=0.03):
     servo_index = 2
     
@@ -124,4 +162,15 @@ def move_slow_grippper(status, step = 1, delay = 0.02):
             time.sleep(delay)
         move_slow_grippper,current_angle[servo_index] = 0
 
+
+
+# -------------test-------------
+
+link2 = move_slow_link2()
+
+link2.move(45)
+time.sleep(3)
+link2.move(90)
+time.sleep(3)
+link2.move(0)
 
