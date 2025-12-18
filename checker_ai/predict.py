@@ -1,7 +1,7 @@
 import torch
 from checker_ai.env import CheckersEnv
 from checker_ai.dqn_agent import DQNAgent
-from checker_ai.utils import action_to_move
+from checker_ai.utils_ import action_to_move
 from checker_ai.config_ import BOARD_SIZE, AI, OPP
 
 def predict_move(board_list, model_path="checker_ai.pth"):

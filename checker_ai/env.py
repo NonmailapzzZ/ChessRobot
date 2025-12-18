@@ -1,5 +1,5 @@
 from checker_ai.config_ import BOARD_SIZE, EMPTY, AI, OPP
-from utils import move_to_action, action_to_move
+from checker_ai.utils_ import move_to_action, action_to_move
 import torch
 
 
