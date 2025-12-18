@@ -173,6 +173,40 @@ class ClickableCell(QLabel):
         self.clicked.emit(self.r, self.c)
 
 class ScaraCameraApp(QMainWindow):
+    def ai_move(self):
+        try:
+            board_list = self.board_state_to_list()
+            move = predict.predict_move(board_list)
+
+            if move is None:
+                self._log("[AI] No valid move")
+                return
+
+            fr = move["from"]
+            to = move["to"]
+
+            fx, fy = self.board_cell_to_xy(fr[0], fr[1])
+            tx, ty = self.board_cell_to_xy(to[0], to[1])
+
+            self._log(f"[AI] MOVE from r={fr} -> r={to}")
+            self._log(f"[AI] XY: ({fx:.2f},{fy:.2f}) → ({tx:.2f},{ty:.2f})")
+
+            # แล้วสั่ง IK
+            self.ik_x.setValue(fx)
+            self.ik_y.setValue(fy)
+            self._on_go_xy()
+
+            # ทำหยิบชิ้น
+            self._on_gripper_close()
+
+            self.ik_x.setValue(tx)
+            self.ik_y.setValue(ty)
+            self._on_go_xy()
+
+            self._on_gripper_open()
+
+        except Exception as e:
+            self._log(f"[AI ERROR] {e}")
 
 
     def _draw_board_overlay(self, img):
