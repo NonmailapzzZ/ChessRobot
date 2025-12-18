@@ -1,176 +1,100 @@
-# = = = = = = = Const. = = = = = = = =
+import serial
 import time
-from numpy import abs
-import RPi.GPIO as GPIO
+from coordinate_origin import inverse_matrix
 
-# ============ GPIO SETUP ==============
-GPIO.setmode(GPIO.BCM)
-servo_pins = [12, 13, 18, 19]
-GPIO.setup(servo_pins, GPIO.OUT)
+# เชื่อมต่อ Arduino
+ser = serial.Serial('COM11', 9600, timeout=1)
+time.sleep(2)  # ให้ Arduino reset เสร็จ
 
-# ~ servo_link1 = GPIO12
-# ~ servo_link2 = GPIO13
-# ~ servo_vertical = GPI18
-# ~ servo_gripper = GPIO19
+def move_slow_link1(deg):
+    deg = (180 - deg) * (300/180)
+    ser.write(f"L1:{deg}\n".encode())
 
-# ============ PWM 50 HZ ================
-servos = [GPIO.PWM(pin, 50) for pin in servo_pins]
- 
- 
-# ====== CONFIG SERVO ======
-SERVO_MIN_ANGLE = 0
-SERVO_MAX_ANGLE = 300
-SERVO_MIN_DUTY  = 2.5
-SERVO_MAX_DUTY  = 12.5
+def move_slider(deg):
+    ser.write(f"SL:{deg}\n".encode())
 
-# = = = = = = = Calculate. = = = = = = = =
-def angle_to_duty(angle):
-    angle = max(SERVO_MIN_ANGLE, min(SERVO_MAX_ANGLE, angle))
-    duty = SERVO_MIN_DUTY + (angle / SERVO_MAX_ANGLE) * (SERVO_MAX_DUTY - SERVO_MIN_DUTY)
-    return duty
-    
-# ============ START DUTY =============
-servos[0].start(angle_to_duty(270))
-time.sleep(0.3)
-# ~ servos[1].start(angle_to_duty(0))
-# ~ time.sleep(0.3)
-servos[2].start(angle_to_duty(155))
-time.sleep(0.3)
-servos[3].start(angle_to_duty(0))
-time.sleep(0.3)
-    
-
-# = = = = = = = SERVO ROTATE = = = = = = = = = 
-def move_slow_link1(target, step = 1, delay=0.04):
-    target = int(180 - target + 90)
-    servo_index = 0
-    
-    if 'current_angle' not in move_slow_link1.__dict__:
-        move_slow_link1.current_angle = [270]
-        
-    current = move_slow_link1.current_angle[0]
-    if current < target:
-        for angle in range(int(current), target + step + 4, step):
-            servos[servo_index].ChangeDutyCycle(angle_to_duty(angle))
-            time.sleep(delay)
-    
-    else:
-        for angle in range(int(current), target - step - 4, -step):
-            servos[servo_index].ChangeDutyCycle(angle_to_duty(angle))
-            time.sleep(delay)
-    
-    move_slow_link1.current_angle[servo_index] = target
-
+def move_gripper(deg):
+    ser.write(f"GR:{deg}\n".encode())
 
 class move_slow_link2:
-    def __init__(self, gpio_pin=servo_pins[2], deg_per_sec=360/7.39, duty_stop=7.5, forward_offset=2.0, backward_offset=2.2):
-        """
-        gpio_pin        : GPIO pin (BCM)
-        deg_per_sec     : ความเร็วเชิงองศา (deg/s)
-        duty_stop       : duty ที่ servo หยุดนิ่ง
-        forward_offset  : ความเร็วไปข้างหน้า
-        backward_offset : ความเร็วถอยหลัง
-        """
-        self.pin = gpio_pin
-        self.deg_per_sec = deg_per_sec
+    def __init__(self):
         self.pos = 0
 
-        self.duty_stop = duty_stop
-        self.duty_forward = duty_stop + forward_offset
-        self.duty_backward = duty_stop - backward_offset
+    def move(self, deg):
+        ser.write(f"L2:{deg}\n".encode())
+        self.pos = deg
 
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.pin, GPIO.OUT)
+if __name__ == "__main__":
+    # --------- test link2 ---------
+    # link2 = Link2()
 
-        self.pwm = GPIO.PWM(self.pin, 50)
-        self.pwm.start(self.duty_stop)
-        time.sleep(0.5)
+    # link2.move(90)
+    # time.sleep(4)
+    # link2.move(0)
 
-    # ---------- low-level ----------
-    def _set_forward(self):
-        self.pwm.ChangeDutyCycle(self.duty_forward)
-
-    def _set_backward(self):
-        self.pwm.ChangeDutyCycle(self.duty_backward)
-
-    def _stop(self):
-        self.pwm.ChangeDutyCycle(self.duty_stop)
-
-    # ---------- main API ----------
-    def move(self, target_deg):
-        delta = int(target_deg) - self.pos
-        duration = abs(delta) / self.deg_per_sec
-
-        if delta == 0:
-            return
-
-        if delta > 0:
-            self._set_forward()
-        else:
-            self._set_backward()
-
-        time.sleep(duration)
-        self._stop()
-
-        # update position
-        self.pos = target_deg
-
-    def cleanup(self):
-        self._stop()
-        self.pwm.stop()
-        GPIO.cleanup(self.pin)
-
-  
-def move_slow_slider(status, step = 1, delay=0.03):
-    servo_index = 2
+    # --------- test link1 --------
+    move_slow_link1(180)
+    time.sleep(5)
+    move_slow_link1(0)
+    time.sleep(8)
+    # move_slow_link1(300)
+    # time.sleep(5)
+    # move_slow_link1(180)
+    # time.sleep(10)
+    # move_slow_link1(0)
     
-    if 'current_angle' not in move_slow_slider.__dict__:
-        move_slow_slider.current_angle = [155]
-        
-    current = move_slow_slider.current_angle[0]
+    #  --------- test gripper ---------
+    # move_gripper(300) # fully open
+    # time.sleep(3)
+    # move_gripper(55)   # fully close
+    # time.sleep(3)
+    # move_gripper(300) # fully open
     
-    if status == 'DOWN':
-        for angle in range(int(current), 60 - step, -step):
-            servos[servo_index].ChangeDutyCycle(angle_to_duty(angle))
-            time.sleep(delay)
-        move_slow_slider.current_angle[servo_index] = 60
-        
-    else:
-        for angle in range(int(current), 155 + step, step):
-            servos[servo_index].ChangeDutyCycle(angle_to_duty(angle))
-            time.sleep(delay)
-        move_slow_slider.current_angle[servo_index] = 155
+    # --------- test slider ---------
+    # move_slider(90)   # down
+    # time.sleep(1)
+    # move_slider(300) # up
+   
+   
 
 
-
-def move_slow_grippper(status, step = 1, delay = 0.02):
-    servo_index = 3
+def play_chess(pos):
+    # ----- const. -----
+    grab = 55
+    ungrab = 300
+    up = 300
+    down = 90
+    home_link1 = 300
+    home_link2 = 0
+    # ------------------
     
-    if 'current_angle' not in move_slow_gripper.__dict__:
-        move_slow_gripper.current_angle = [0]
-        
-    current = move_slow_gripper.current_angle[0]
     
-    if status == 'ON':
-        for angle in range(int(current), 70 + step, step):
-            servos[servo_index].ChangeDutyCycle(angle_to_duty(angle))
-            time.sleep(delay)
-        move_slow_grippper,current_angle[servo_index] = 70
-    else:
-        for angle in range(int(current), 0 - step, -step):
-            servos[servo_index].ChangeDutyCycle(angle_to_duty(angle))
-            time.sleep(delay)
-        move_slow_grippper,current_angle[servo_index] = 0
+    link2 = move_slow_link2()
+    grab_pos = pos[0]
+    place_pos = pos[1]
+    theta1, theta2 = inverse_matrix(grab_pos)
+    move_slow_link1(theta1)
+    time.sleep(10)
+    link2.move(theta2)
+    time.sleep(10)
+    move_slider(down)
+    time.sleep(10)
+    move_gripper(grab)
+    time.sleep(10)
+    move_slider(up)
+    
+    theta1, theta2 = inverse_matrix(place_pos)
+    move_slow_link1(theta1)
+    time.sleep(10)
+    link2.move(theta2)
+    time.sleep(10)
+    move_slider(down)
+    time.sleep(10)
+    move_gripper(ungrab)
+    time.sleep(10)
+    move_slider(up)
+    
+    move_slow_link1(home_link1)
+    link2.move(home_link2)
 
-
-
-# -------------test-------------
-
-link2 = move_slow_link2()
-
-link2.move(45)
-time.sleep(3)
-link2.move(90)
-time.sleep(3)
-link2.move(0)
-
+    
