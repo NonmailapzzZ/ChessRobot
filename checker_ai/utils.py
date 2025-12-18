@@ -1,5 +1,5 @@
 import torch
-from config import BOARD_SIZE
+from checker_ai.config_ import BOARD_SIZE
 
 
 def board_to_tensor(board):

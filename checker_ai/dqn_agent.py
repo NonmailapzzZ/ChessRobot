@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import random
 from collections import deque
-from config import GAMMA, LR, EPSILON_DECAY, EPSILON_END
+from checker_ai.config_ import GAMMA, LR, EPSILON_DECAY, EPSILON_END
 
 class QNetwork(nn.Module):
     def __init__(self, state_size, action_size):

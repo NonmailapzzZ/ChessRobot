@@ -1,6 +1,6 @@
 from env import CheckersEnv
 from dqn_agent import DQNAgent
-from config import MAX_EPISODES, MAX_STEPS
+from checker_ai.config_ import MAX_EPISODES, MAX_STEPS
 
 
 def train():
