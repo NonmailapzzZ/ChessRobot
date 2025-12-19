@@ -24,40 +24,6 @@ class move_slow_link2:
         ser.write(f"L2:{deg}\n".encode())
         self.pos = deg
 
-if __name__ == "__main__":
-    # --------- test link2 ---------
-    # link2 = Link2()
-
-    # link2.move(90)
-    # time.sleep(4)
-    # link2.move(0)
-
-    # --------- test link1 --------
-    move_slow_link1(180)
-    time.sleep(5)
-    move_slow_link1(0)
-    time.sleep(8)
-    # move_slow_link1(300)
-    # time.sleep(5)
-    # move_slow_link1(180)
-    # time.sleep(10)
-    # move_slow_link1(0)
-    
-    #  --------- test gripper ---------
-    # move_gripper(300) # fully open
-    # time.sleep(3)
-    # move_gripper(55)   # fully close
-    # time.sleep(3)
-    # move_gripper(300) # fully open
-    
-    # --------- test slider ---------
-    # move_slider(90)   # down
-    # time.sleep(1)
-    # move_slider(300) # up
-   
-   
-
-
 def play_chess(pos):
     # ----- const. -----
     grab = 55
@@ -96,5 +62,40 @@ def play_chess(pos):
     
     move_slow_link1(home_link1)
     link2.move(home_link2)
+
+# if __name__ == "__main__":
+    # --------- test link2 ---------
+    # link2 = Link2()
+
+    # link2.move(90)
+    # time.sleep(4)
+    # link2.move(0)
+
+    # --------- test link1 --------
+    # move_slow_link1(180)
+    # time.sleep(5)
+    # move_slow_link1(0)
+    # time.sleep(8)
+    # move_slow_link1(300)
+    # time.sleep(5)
+    # move_slow_link1(180)
+    # time.sleep(10)
+    # move_slow_link1(0)
+    
+    #  --------- test gripper ---------
+    # move_gripper(300) # fully open
+    # time.sleep(3)
+    # move_gripper(55)   # fully close
+    # time.sleep(3)
+    # move_gripper(300) # fully open
+    
+    # --------- test slider ---------
+    # move_slider(90)   # down
+    # time.sleep(1)
+    # move_slider(300) # up
+   
+   
+
+
 
     
