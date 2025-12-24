@@ -9,7 +9,7 @@ import numpy as np
 # r = ones_like(theta)*1
 
 
-theta1, theta2 = inverse_matrix(14, 15)
+theta1, theta2 = inverse_matrix(-12.5,38)
 theta1 = deg2rad(theta1)
 theta2 = deg2rad(theta2)
 print(np.rad2deg(theta1),"\n",np.rad2deg(theta2))
